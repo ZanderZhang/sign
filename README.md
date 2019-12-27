@@ -1,0 +1,2 @@
+# sign
+ipa codesign
