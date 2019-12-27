@@ -1,0 +1,29 @@
+#!/bin/bash
+
+
+sign=$2
+A=$1
+
+START_TIME=$(date +%s)
+[ -e /tmp/fd1 ] || mkfifo /tmp/fd1
+exec 3<>/tmp/fd1
+rm -rf /tmp/fd1
+
+for ((i=1;i<=5;i++));do
+echo >&3
+done
+find $A -name "*.ipa" -exec bash -c 'mv "$0" "${0// /_}"' {} \;
+mkdir -p $A-ok
+for i in `find $A -name '*.ipa'`
+do
+read -u3
+{
+a=`basename $i`
+$2 -fk $3 -p $4 -m $5 -o $A-ok/$a -z 9 $i
+echo >&3
+}&
+done
+wait
+
+STOP_TIME=$(date +%s)
+echo "$(expr ${STOP_TIME} - ${START_TIME})s"
